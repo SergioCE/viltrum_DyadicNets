@@ -55,8 +55,8 @@ public:
             if(dyadicDims[dimInd][0] == i){
                 //cout<<dyadicIndex[dimInd]<<" "<<dyadic_net.size()<<endl;
                 //cout<<dyadic_net[dyadicIndex[dimInd]][0]<<endl;
-                sample[i] = dyadic_net[dyadicIndex[dimInd]][0]*2-1;      //Get the dyadic-nets values
-                sample[++i] = dyadic_net[dyadicIndex[dimInd]][1]*2-1;
+                sample[i] = dyadic_net[dyadicIndex[dimInd]][0];      //Get the dyadic-nets values
+                sample[++i] = dyadic_net[dyadicIndex[dimInd]][1];
                 dyadicIndex[dimInd] = (dyadicIndex[dimInd]+1)%dyadic_net.size();  //Increment dimension's index
                 //cout<<dyadic_net[dyadicIndex[dimInd]][0]<<","<<dyadic_net[dyadicIndex[dimInd]][1]<<endl;
                 if(dimInd<dyadicDims.size()-1) dimInd++;
