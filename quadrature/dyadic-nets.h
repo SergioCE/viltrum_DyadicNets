@@ -18,15 +18,17 @@ namespace std {
 }
 #endif
 
+using namespace std;
+
 namespace viltrum {
 
 template<typename RNG>
 class StepperMonteCarloDyadicUniform {
     mutable RNG rng;
 
-    mutable vector<Point2f> dyadic_net;
+    mutable vector<array<float,2>> dyadic_net;
     mutable vector<int> dyadicIndex;
-    mutable vector<Point2f> dyadicDims;
+    mutable vector<array<float,2>> dyadicDims;
 
     template<typename Result>
     struct Samples {
@@ -45,15 +47,22 @@ public:
     void step(const F& f, const Range<Float,DIM>& range, Samples<Result>& samples) const {
     	std::array<Float,DIM> sample;
         int dimInd = 0;
+        //cout<<dyadicIndex[dimInd]<<endl;
+        //cout<<dyadic_net.size()<<endl;
 	    for (std::size_t i=0;i<DIM;++i) {
-            if(dyadicDims[dimInd].x == i){
-                sample[i] = dyadic_net[dyadicIndex[dimInd]].x;      //Get the dyadic-nets values
-                sample[++i] = dyadic_net[dyadicIndex[dimInd]].y;
-                dyadicIndex[dimInd]++;  //Increment dimension's index
+            //cout<<i<<endl;
+            std::uniform_real_distribution<Float> dis(range.min(i),range.max(i));
+            if(dyadicDims[dimInd][0] == i){
+                //cout<<dyadicIndex[dimInd]<<" "<<dyadic_net.size()<<endl;
+                //cout<<dyadic_net[dyadicIndex[dimInd]][0]<<endl;
+                sample[i] = dyadic_net[dyadicIndex[dimInd]][0]*2-1;      //Get the dyadic-nets values
+                sample[++i] = dyadic_net[dyadicIndex[dimInd]][1]*2-1;
+                dyadicIndex[dimInd] = (dyadicIndex[dimInd]+1)%dyadic_net.size();  //Increment dimension's index
+                //cout<<dyadic_net[dyadicIndex[dimInd]][0]<<","<<dyadic_net[dyadicIndex[dimInd]][1]<<endl;
                 if(dimInd<dyadicDims.size()-1) dimInd++;
             }
             else{
-                std::uniform_real_distribution<Float> dis(range.min(i),range.max(i));
+                
                 sample[i] = dis(rng);
             }
 	    }
@@ -66,7 +75,7 @@ public:
         return (samples.counter==0)?decltype(samples.sumatory)(0):(samples.sumatory/double(samples.counter));
     }
 
-    StepperMonteCarloDyadicUniform(RNG&& r, vector<Point2f> dyadicDims_,int spp) :
+    StepperMonteCarloDyadicUniform(RNG&& r, vector<array<float,2>> dyadicDims_,int spp) :
         rng(std::forward<RNG>(r)), dyadicDims(dyadicDims_) {
             dyadicIndex.resize(dyadicDims_.size());
             int i;
@@ -102,8 +111,10 @@ public:
                     std::size_t pos = line.find(" ");      // position of "live" in str
                     std::string f2 = line.substr(pos);
                     cout<<stof(line)<<" "<<stof(f2)<<endl;
+                    dyadic_net.push_back({stof(line),stof(f2)});
                 }
             }
+            
         }
 
     StepperMonteCarloDyadicUniform(RNG&& r) :
@@ -116,7 +127,7 @@ auto stepper_monte_carlo_dyadic_uniform(RNG&& rng) {
 }
 
 template<typename RNG>
-auto stepper_monte_carlo_dyadic_uniform(RNG&& rng,vector<Point2f> dyadicDims, int spp) {
+auto stepper_monte_carlo_dyadic_uniform(RNG&& rng,vector<array<float,2>> dyadicDims, int spp) {
     return StepperMonteCarloDyadicUniform<RNG>(std::forward<RNG>(rng),dyadicDims,spp);
 }
 
@@ -124,7 +135,7 @@ auto stepper_monte_carlo_dyadic_uniform(std::size_t seed = std::random_device()(
     return stepper_monte_carlo_dyadic_uniform(std::mt19937_64(seed));
 }
 
-auto stepper_monte_carlo_dyadic_uniform(vector<Point2f> dyadicDims, int spp, std::size_t seed = std::random_device()()) {
+auto stepper_monte_carlo_dyadic_uniform(vector<array<float,2>> dyadicDims, int spp, std::size_t seed = std::random_device()()) {
     return stepper_monte_carlo_dyadic_uniform(std::mt19937_64(seed),dyadicDims,spp);
 }
 
