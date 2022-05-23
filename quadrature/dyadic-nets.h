@@ -7,7 +7,6 @@
 #include "integrate-bins-stepper.h"
 #include "vector-dimensions.h"
 
-#include <filesystem>
 #include <iostream>
 #include <math.h>
 
@@ -18,7 +17,6 @@ namespace std {
 }
 #endif
 
-using namespace std;
 
 namespace viltrum {
 
@@ -27,7 +25,6 @@ class StepperMonteCarloDyadicUniform {
     mutable RNG rng;
 
     mutable vector<array<float,2>> dyadic_net;
-    mutable vector<int> dyadicIndex;
     mutable vector<array<float,2>> dyadicDims;
 
     template<typename Result>
@@ -70,7 +67,6 @@ public:
 
     StepperMonteCarloDyadicUniform(RNG&& r, vector<array<float,2>> dyadicDims_,int spp) :
         rng(std::forward<RNG>(r)), dyadicDims(dyadicDims_) {
-            dyadicIndex.resize(dyadicDims_.size());
             int i;
             for(i=0; i<=12; i++){
                 if(spp == pow(2,i)) break;
@@ -106,6 +102,9 @@ public:
                     //cout<<stof(line)<<" "<<stof(f2)<<endl;
                     dyadic_net.push_back({stof(line),stof(f2)});
                 }
+            }
+            else{
+                std::cout<<"Couldn't read the dyadic-net file: "<<path<<std::endl;
             }
             
         }
