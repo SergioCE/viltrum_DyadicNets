@@ -47,18 +47,11 @@ public:
     void step(const F& f, const Range<Float,DIM>& range, Samples<Result>& samples) const {
     	std::array<Float,DIM> sample;
         int dimInd = 0;
-        //cout<<dyadicIndex[dimInd]<<endl;
-        //cout<<dyadic_net.size()<<endl;
 	    for (std::size_t i=0;i<DIM;++i) {
-            //cout<<i<<endl;
             std::uniform_real_distribution<Float> dis(range.min(i),range.max(i));
             if(dyadicDims[dimInd][0] == i){
-                //cout<<dyadicIndex[dimInd]<<" "<<dyadic_net.size()<<endl;
-                //cout<<dyadic_net[dyadicIndex[dimInd]][0]<<endl;
-                sample[i] = dyadic_net[dyadicIndex[dimInd]][0];      //Get the dyadic-nets values
-                sample[++i] = dyadic_net[dyadicIndex[dimInd]][1];
-                dyadicIndex[dimInd] = (dyadicIndex[dimInd]+1)%dyadic_net.size();  //Increment dimension's index
-                //cout<<dyadic_net[dyadicIndex[dimInd]][0]<<","<<dyadic_net[dyadicIndex[dimInd]][1]<<endl;
+                sample[i] = dyadic_net[samples.counter][0];      //Get the dyadic-nets values
+                sample[++i] = dyadic_net[samples.counter][1];
                 if(dimInd<dyadicDims.size()-1) dimInd++;
             }
             else{
@@ -107,10 +100,10 @@ public:
                 string line;
                 getline(filein, line);
                 while (getline(filein, line)) {
-                    cout<<line<<endl;
+                    //cout<<line<<endl;
                     std::size_t pos = line.find(" ");      // position of "live" in str
                     std::string f2 = line.substr(pos);
-                    cout<<stof(line)<<" "<<stof(f2)<<endl;
+                    //cout<<stof(line)<<" "<<stof(f2)<<endl;
                     dyadic_net.push_back({stof(line),stof(f2)});
                 }
             }
@@ -147,13 +140,15 @@ auto integrator_monte_carlo_dyadic_uniform(RNG&& rng, unsigned long samples,
 
 auto integrator_monte_carlo_dyadic_uniform(unsigned long samples, std::size_t seed = std::random_device()()) {
     int i;
-    cout<<"AAAAAA"<<endl;
     for(i=0; i<=12; i++){
         if(samples == pow(2,i)) break;
     }
     if(i>12) {
         std::cout<<"Incorrect number of samples, please, use a power of 2 between 0 and 12."<<std::endl;
         exit(0);
+    }
+    else {
+        std::cout<<"Using a "<<pow(2,i)<<" net."<<std::endl;
     }
     return integrator_stepper(stepper_monte_carlo_dyadic_uniform(seed),samples);
 }
