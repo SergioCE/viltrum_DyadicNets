@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <complex>
 
 namespace viltrum {
 
@@ -76,6 +77,7 @@ ErrorRelativeSingleDimensionStandard error_relative_single_dimension(double offs
 class ErrorSingleDimensionSize {
     float norm(float f) const { return std::abs(f); }
     double norm(double f) const { return std::abs(f); }
+    double norm(std::complex<double> f) const { return abs(f); }        //CAMBIO
     template<typename V>
     auto norm(const V& v) const {
         auto i = v.begin();

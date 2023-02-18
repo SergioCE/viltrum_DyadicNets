@@ -74,8 +74,8 @@ struct Simpson {
     constexpr std::array<T, samples> coefficients(const std::array<T,samples>& p) const {
         return std::array<T, samples>{
                   p[0],
-                  -3*p[0]+4*p[1]-p[2],
-                  2*p[0]-4*p[1]+2*p[2]
+                  -3.0*p[0]+4.0*p[1]-p[2],
+                  2.0*p[0]-4.0*p[1]+2.0*p[2]
         };
     }
 
@@ -194,13 +194,13 @@ public:
 	auto operator()(const std::array<T,samples>& p) const -> T {
 		std::array<T,Q::samples> local;
 		std::copy(p.begin(),p.begin()+Q::samples,local.begin());
-		T sol = quadrature(local)/N;
+		T sol = quadrature(local)/T(N);
 //		std::cerr<<std::endl<<0<<" -> "<<sol<<std::endl;
 		for (std::size_t i = 1; i<N; ++i) {
 			std::copy(p.begin()+i*(Q::samples - 1),
 				      p.begin()+i*(Q::samples - 1) + Q::samples, 
 					  local.begin());
-			sol += quadrature(local)/N;
+			sol += quadrature(local)/T(N);
 //			std::cerr<<i<<" -> "<<sol<<std::endl;
 		}
 		return sol;

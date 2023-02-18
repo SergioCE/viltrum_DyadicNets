@@ -1,5 +1,6 @@
 #pragma once
 
+#include <complex>
 #include <vector>
 #include "integrate.h"
 #include "multidimensional-range.h"
@@ -7,6 +8,16 @@
 #include <vector>
 #include <array>
 #include <type_traits>
+
+namespace std {
+    template<class T>
+    struct is_complex : std::false_type { };
+ 
+    template<class T>
+    struct is_complex<std::complex<T>> : std::is_floating_point<T> { };
+
+}
+
 
 namespace viltrum {
 
@@ -55,7 +66,14 @@ class AlphaOptimized {
 	}
 
 	template<typename T>
-	T alpha(const T& cov, const T& var, typename std::enable_if<!std::is_floating_point<T>::value>::type* = 0) const {
+    complex<T> alpha(const complex<T>& cov, const complex<T>& var, typename std::enable_if<std::is_floating_point<T>::value>::type* = 0) const {
+		complex<T> min = (T(alpha_max) < abs(cov/var)) ? complex<T>(alpha_max) : (cov/var);
+		complex<T> max = (T(alpha_min) > abs(min)) ? complex<T>(alpha_min) : min;
+		return (abs(var)==T(0))?((abs(cov)>T(0))?complex<T>(0):complex<T>(alpha_max)):max;
+	}
+
+	template<typename T>
+	T alpha(const T& cov, const T& var, typename std::enable_if<!std::is_floating_point<T>::value && !std::is_complex<T>::value>::type* = 0) const {
 		T res;
 		for (decltype(res.size()) i = 0; i<res.size(); i++) {
 			res[i] = alpha(cov[i], var[i]);
