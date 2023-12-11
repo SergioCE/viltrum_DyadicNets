@@ -37,7 +37,30 @@ public:
 template<typename T>
 adaptor_vector_2d<T> adaptor(std::vector<std::vector<T>>& v) {
     return adaptor_vector_2d<T>(v);
-}    
+}   
+
+
+
+template <typename T>
+class adaptor_vector_3d {
+    std::vector<std::vector<std::vector<T>>>& bins;
+public:
+    adaptor_vector_3d(std::vector<std::vector<std::vector<T>>>& v) : bins(v) {
+        //Adjust size to max row size so it is regular
+        if (bins.size()<1) bins.resize(1);
+        std::size_t s = 1;
+        for (auto& row : bins) if (row.size()>s) s=row.size();
+        for (auto& row : bins) if (row.size()!=s) row.resize(s);        
+    }
+    std::array<std::size_t,3> resolution() const { return std::array<std::size_t,3>{bins[0][0].size(),bins[0].size(),bins.size()}; }
+    T& operator()(const std::array<std::size_t,3>& i) { return bins[i[2]][i[1]][i[0]]; }
+    const T& operator()(const std::array<std::size_t,3>& i) const { return bins[i[2]][i[1]][i[0]]; }
+}; 
+
+template<typename T>
+adaptor_vector_3d<T> adaptor(std::vector<std::vector<std::vector<T>>>& v) {
+    return adaptor_vector_3d<T>(v);
+}   
  
     
 template<typename IntegratorBins, typename Container, typename F, typename Float, std::size_t DIM>
