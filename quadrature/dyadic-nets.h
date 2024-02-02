@@ -65,7 +65,7 @@ public:
         return (samples.counter==0)?decltype(samples.sumatory)(0):(samples.sumatory/double(samples.counter));
     }
 
-    StepperMonteCarloDyadicUniform(RNG&& r, vector<array<float,2>> dyadicDims_,int spp) :
+    StepperMonteCarloDyadicUniform(RNG&& r, vector<array<float,2>> dyadicDims_,int spp, string dyadic_nets_folder) :
         rng(std::forward<RNG>(r)), dyadicDims(dyadicDims_) {
             int i;
             for(i=0; i<=12; i++){
@@ -75,7 +75,7 @@ public:
                 std::cout<<"Incorrect number of samples: " << spp <<"\nPlease, use a power of 2 between 0 and 12."<<std::endl;
                 exit(0);
             }
-            string path = "../external/viltrum/utils/Blue-Nets/";
+            string path = dyadic_nets_folder;
             if(i<=3){
                 path = path + "000" + to_string((int) pow(2,i)) + ".txt";
             }
@@ -109,47 +109,17 @@ public:
             
         }
 
-    StepperMonteCarloDyadicUniform(RNG&& r) :
-    rng(std::forward<RNG>(r)) { }
 };
 
-template<typename RNG>
-auto stepper_monte_carlo_dyadic_uniform(RNG&& rng) {
-    return StepperMonteCarloDyadicUniform<RNG>(std::forward<RNG>(rng));
-}
 
 template<typename RNG>
-auto stepper_monte_carlo_dyadic_uniform(RNG&& rng,vector<array<float,2>> dyadicDims, int spp) {
-    return StepperMonteCarloDyadicUniform<RNG>(std::forward<RNG>(rng),dyadicDims,spp);
+auto stepper_monte_carlo_dyadic_uniform(RNG&& rng,vector<array<float,2>> dyadicDims, int spp, string dyadic_nets_folder) {
+    return StepperMonteCarloDyadicUniform<RNG>(std::forward<RNG>(rng),dyadicDims,spp, dyadic_nets_folder);
 }
 
-auto stepper_monte_carlo_dyadic_uniform(std::size_t seed = std::random_device()()) {
-    return stepper_monte_carlo_dyadic_uniform(std::mt19937_64(seed));
-}
 
-auto stepper_monte_carlo_dyadic_uniform(vector<array<float,2>> dyadicDims, int spp, std::size_t seed = std::random_device()()) {
-    return stepper_monte_carlo_dyadic_uniform(std::mt19937_64(seed),dyadicDims,spp);
-}
-
-template<typename RNG>
-auto integrator_monte_carlo_dyadic_uniform(RNG&& rng, unsigned long samples, 
-    std::enable_if_t<!std::is_integral_v<RNG>,int> dummy = 0) {
-    return integrator_stepper(stepper_monte_carlo_dyadic_uniform(std::forward<RNG>(rng)),samples);
-}
-
-auto integrator_monte_carlo_dyadic_uniform(unsigned long samples, std::size_t seed = std::random_device()()) {
-    int i;
-    for(i=0; i<=12; i++){
-        if(samples == pow(2,i)) break;
-    }
-    if(i>12) {
-        std::cout<<"Incorrect number of samples, please, use a power of 2 between 0 and 12."<<std::endl;
-        exit(0);
-    }
-    else {
-        std::cout<<"Using a "<<pow(2,i)<<" net."<<std::endl;
-    }
-    return integrator_stepper(stepper_monte_carlo_dyadic_uniform(seed),samples);
+auto stepper_monte_carlo_dyadic_uniform(vector<array<float,2>> dyadicDims, int spp, string dyadic_nets_folder, std::size_t seed = std::random_device()()) {
+    return stepper_monte_carlo_dyadic_uniform(std::mt19937_64(seed),dyadicDims,spp,dyadic_nets_folder);
 }
 
 
